@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AUTSM // Automated TSM Accumulation Protocol</title>
+<meta name="description" content="You buy AUTSM. 100% of creator fees are used to buy TSM and send to holders.">
+<meta name="theme-color" content="#000000">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="AUTSM // Automated TSM Accumulation Protocol">
+<meta property="og:description" content="You buy AUTSM. 100% of creator fees are used to buy TSM and send to holders.">
+<meta property="og:image" content="assets/favicon-512.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/favicon-180.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ============ CRT OVERLAYS ============ -->
+<div class="crt-scanlines" aria-hidden="true"></div>
+<div class="crt-vignette" aria-hidden="true"></div>
+
+<!-- ============ STATUS BAR ============ -->
+<div class="statusbar">
+  <div class="wrap statusbar__inner">
+    <span>AUTSM PROTOCOL v1.0</span>
+    <span class="statusbar__right">
+      <span class="statusbar__conn">CONNECTED: 0x7A1F&hellip;TSM</span>
+      <span class="statusbar__box">[<span class="blink">=</span>]</span>
+    </span>
+  </div>
+</div>
+
+<!-- ============ HEADER ============ -->
+<header class="header">
+  <div class="wrap header__inner">
+    <a class="brand" href="#top" aria-label="AUTSM home">
+      <img src="assets/autsm-wordmark.png" alt="AUTSM" width="640" height="505">
+    </a>
+
+    <nav class="nav" aria-label="Primary">
+      <a href="#top">HOME</a>
+      <a href="#protocol">PROTOCOL</a>
+      <a href="#stats">STATS</a>
+      <a href="#tx">LEDGER</a>
+    </nav>
+
+    <a class="btn btn--sm" href="#buy">BUY AUTSM</a>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ============ HERO ============ -->
+  <section class="wrap hero">
+
+    <div class="hero__left">
+      <h1 class="hero__title">
+        <span>AUTOMATED TSM</span>
+        <span>ACCUMULATION</span>
+        <span>PROTOCOL</span>
+      </h1>
+      <p class="hero__ticker">($AUTSM)</p>
+
+      <hr class="rule">
+
+      <p class="hero__copy">
+        You buy AUTSM.<br>
+        100% of creator fees are used<br>
+        to buy TSM and send to holders.
+      </p>
+
+      <a class="btn btn--lg" id="buy" href="#protocol">
+        BUY AUTSM NOW <span class="btn__caret">&gt;<span class="blink">_</span></span>
+      </a>
+    </div>
+
+    <!-- framed terminal window -->
+    <div class="hero__right">
+      <div class="window">
+        <div class="window__bar">
+          <span>AUTSM.EXE</span>
+          <span class="window__dots">&#9632; &#9632; &#9632;</span>
+        </div>
+
+        <div class="window__screen">
+          <video
+            class="window__video"
+            poster="assets/autsm-poster.jpg"
+            autoplay muted loop playsinline preload="auto"
+            aria-label="AUTSM protocol animation">
+            <source src="assets/autsm-loop.mp4" type="video/mp4">
+            <img src="assets/autsm-poster.jpg" alt="AUTSM">
+          </video>
+        </div>
+
+        <div class="window__readout">
+          <p class="comment">// PROTOCOL STATUS</p>
+          <p class="readout__live"><span class="dot"></span>AUTSM PROTOCOL IS LIVE</p>
+          <p class="readout__status">
+            STATUS: <span id="status-text">ACCUMULATING TSM FOR HOLDERS...</span><span class="cursor"></span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ============ MECHANISM ============ -->
+  <section class="wrap section" id="protocol">
+    <p class="comment section__label">// MECHANISM</p>
+
+    <div class="cards">
+
+      <article class="card">
+        <p class="card__num">01</p>
+        <svg class="pixicon" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="1" width="1" height="1"/><rect x="2" y="2" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="4" y="4" width="10" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/><rect x="13" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="4" y="6" width="1" height="1"/><rect x="13" y="6" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="5" y="7" width="1" height="1"/><rect x="12" y="7" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="5" y="8" width="8" height="1"/><rect x="2" y="9" width="1" height="1"/><rect x="2" y="10" width="1" height="1"/><rect x="4" y="11" width="2" height="1"/><rect x="10" y="11" width="2" height="1"/><rect x="4" y="12" width="2" height="1"/><rect x="10" y="12" width="2" height="1"/></svg>
+        <h2 class="card__title">YOU BUY AUTSM</h2>
+        <p class="card__body">Buy $AUTSM on the open market. No presale, no team allocation.</p>
+        <p class="card__caret">&gt;_</p>
+      </article>
+
+      <article class="card">
+        <p class="card__num">02</p>
+        <svg class="pixicon" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="1" width="10" height="1"/><rect x="2" y="2" width="1" height="1"/><rect x="11" y="2" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="6" y="3" width="2" height="1"/><rect x="11" y="3" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="5" y="4" width="4" height="1"/><rect x="11" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="4" y="5" width="2" height="1"/><rect x="11" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="5" y="6" width="3" height="1"/><rect x="11" y="6" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="7" y="7" width="2" height="1"/><rect x="11" y="7" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="8" y="8" width="2" height="1"/><rect x="11" y="8" width="1" height="1"/><rect x="2" y="9" width="1" height="1"/><rect x="4" y="9" width="4" height="1"/><rect x="11" y="9" width="1" height="1"/><rect x="2" y="10" width="1" height="1"/><rect x="6" y="10" width="2" height="1"/><rect x="11" y="10" width="1" height="1"/><rect x="2" y="11" width="1" height="1"/><rect x="11" y="11" width="1" height="1"/><rect x="2" y="12" width="1" height="1"/><rect x="11" y="12" width="1" height="1"/><rect x="2" y="13" width="1" height="1"/><rect x="4" y="13" width="1" height="1"/><rect x="6" y="13" width="1" height="1"/><rect x="8" y="13" width="1" height="1"/><rect x="10" y="13" width="2" height="1"/><rect x="2" y="14" width="2" height="1"/><rect x="5" y="14" width="1" height="1"/><rect x="7" y="14" width="1" height="1"/><rect x="9" y="14" width="1" height="1"/><rect x="11" y="14" width="1" height="1"/></svg>
+        <h2 class="card__title">FEES COLLECTED</h2>
+        <p class="card__body">100% of creator fees are collected automatically on-chain.</p>
+        <p class="card__caret">&gt;_</p>
+      </article>
+
+      <article class="card">
+        <p class="card__num">03</p>
+        <svg class="pixicon" viewBox="0 0 16 16" aria-hidden="true"><rect x="5" y="1" width="5" height="1"/><rect x="3" y="2" width="2" height="1"/><rect x="10" y="2" width="2" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="12" y="3" width="1" height="1"/><rect x="1" y="4" width="1" height="1"/><rect x="6" y="4" width="3" height="1"/><rect x="13" y="4" width="1" height="1"/><rect x="1" y="5" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="9" y="5" width="1" height="1"/><rect x="13" y="5" width="1" height="1"/><rect x="0" y="6" width="1" height="1"/><rect x="5" y="6" width="1" height="1"/><rect x="13" y="6" width="1" height="1"/><rect x="15" y="6" width="1" height="1"/><rect x="0" y="7" width="1" height="1"/><rect x="6" y="7" width="3" height="1"/><rect x="14" y="7" width="1" height="1"/><rect x="0" y="8" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/><rect x="14" y="8" width="1" height="1"/><rect x="0" y="9" width="1" height="1"/><rect x="5" y="9" width="1" height="1"/><rect x="9" y="9" width="1" height="1"/><rect x="13" y="9" width="1" height="1"/><rect x="15" y="9" width="1" height="1"/><rect x="1" y="10" width="1" height="1"/><rect x="6" y="10" width="3" height="1"/><rect x="13" y="10" width="1" height="1"/><rect x="1" y="11" width="1" height="1"/><rect x="13" y="11" width="1" height="1"/><rect x="2" y="12" width="1" height="1"/><rect x="12" y="12" width="1" height="1"/><rect x="3" y="13" width="2" height="1"/><rect x="10" y="13" width="2" height="1"/><rect x="5" y="14" width="5" height="1"/></svg>
+        <h2 class="card__title">BUY TSM</h2>
+        <p class="card__body">Fees are used to market buy TSM on the open market.</p>
+        <p class="card__caret">&gt;_</p>
+      </article>
+
+      <article class="card">
+        <p class="card__num">04</p>
+        <svg class="pixicon" viewBox="0 0 16 16" aria-hidden="true"><rect x="7" y="2" width="2" height="1"/><rect x="7" y="3" width="2" height="1"/><rect x="2" y="4" width="2" height="1"/><rect x="12" y="4" width="2" height="1"/><rect x="2" y="5" width="2" height="1"/><rect x="12" y="5" width="2" height="1"/><rect x="6" y="6" width="4" height="1"/><rect x="6" y="7" width="4" height="1"/><rect x="1" y="8" width="4" height="1"/><rect x="6" y="8" width="4" height="1"/><rect x="11" y="8" width="4" height="1"/><rect x="1" y="9" width="4" height="1"/><rect x="6" y="9" width="4" height="1"/><rect x="11" y="9" width="4" height="1"/><rect x="1" y="10" width="4" height="1"/><rect x="6" y="10" width="4" height="1"/><rect x="11" y="10" width="4" height="1"/><rect x="1" y="11" width="1" height="1"/><rect x="4" y="11" width="1" height="1"/><rect x="6" y="11" width="1" height="1"/><rect x="9" y="11" width="1" height="1"/><rect x="11" y="11" width="1" height="1"/><rect x="14" y="11" width="1" height="1"/></svg>
+        <h2 class="card__title">SENT TO HOLDERS</h2>
+        <p class="card__body">TSM is distributed automatically to every $AUTSM holder.</p>
+        <p class="card__caret">&gt;_</p>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ============ DASHBOARD ============ -->
+  <section class="wrap section panels">
+
+    <div class="panel" id="stats">
+      <p class="comment panel__label">// PROTOCOL STATS</p>
+      <hr class="rule">
+      <dl class="stats">
+        <div class="stats__row"><dt>TOTAL FEES COLLECTED</dt><dd>12.420 SOL</dd></div>
+        <div class="stats__row"><dt>TOTAL TSM ACQUIRED</dt><dd>11.872 TSM</dd></div>
+        <div class="stats__row"><dt>TOTAL TSM DISTRIBUTED</dt><dd>10.543 TSM</dd></div>
+        <div class="stats__row"><dt>HOLDERS</dt><dd>1,245</dd></div>
+        <div class="stats__row"><dt>NEXT DISTRIBUTION</dt><dd id="countdown">00:14:37</dd></div>
+      </dl>
+    </div>
+
+    <div class="panel" id="tx">
+      <p class="comment panel__label">// LATEST TRANSACTIONS</p>
+      <hr class="rule">
+      <ul class="tx">
+        <li><span class="tx__hash">0x8F3A&hellip;7B2C</span><span class="tx__kind">BUY TSM</span><span class="tx__amt">2.134 TSM</span></li>
+        <li><span class="tx__hash">0x91BC&hellip;A98D</span><span class="tx__kind">DISTRIBUTION</span><span class="tx__amt">2.134 TSM</span></li>
+        <li><span class="tx__hash">0x2D77&hellip;EE19</span><span class="tx__kind">BUY TSM</span><span class="tx__amt">1.982 TSM</span></li>
+        <li><span class="tx__hash">0x7E11&hellip;4F3B</span><span class="tx__kind">DISTRIBUTION</span><span class="tx__amt">1.982 TSM</span></li>
+        <li><span class="tx__hash">0xC3D8&hellip;9A21</span><span class="tx__kind">BUY TSM</span><span class="tx__amt">1.704 TSM</span></li>
+      </ul>
+      <p class="tx__note">EXAMPLE DATA &mdash; ILLUSTRATIVE ONLY</p>
+    </div>
+
+  </section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="wrap footer__inner">
+
+    <div class="footer__brand">
+      <img src="assets/autsm-wordmark.png" alt="AUTSM" width="640" height="505">
+      <span>AUTOMATED TSM<br>ACCUMULATION PROTOCOL</span>
+    </div>
+
+    <div class="footer__social">
+      <a href="#" aria-label="X (Twitter)">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.65l-5.22-6.82-5.96 6.82H1.68l7.73-8.84L1.25 2.25h6.82l4.71 6.23 5.46-6.23Zm-1.16 17.52h1.83L7.01 4.13H5.05l12.03 15.64Z"/></svg>
+      </a>
+      <a href="#" aria-label="Telegram">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M21.94 4.3 18.9 19.1c-.23 1.02-.84 1.27-1.7.79l-4.7-3.47-2.27 2.19c-.25.25-.46.46-.95.46l.34-4.8 8.74-7.9c.38-.34-.08-.53-.59-.19L6.98 12.98l-4.65-1.45c-1.01-.32-1.03-1.01.21-1.5l18.17-7c.84-.31 1.58.2 1.23 1.27Z"/></svg>
+      </a>
+      <a href="#" aria-label="Discord">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M19.3 5.34A16.7 16.7 0 0 0 15.16 4l-.2.42a12.7 12.7 0 0 1 3.7 1.9 13 13 0 0 0-11.3 0 12.7 12.7 0 0 1 3.7-1.9L10.84 4A16.7 16.7 0 0 0 6.7 5.34C3.9 9.48 3.14 13.5 3.52 17.47A16.8 16.8 0 0 0 8.6 20l1.1-1.53a10.9 10.9 0 0 1-1.72-.83l.42-.33a11.9 11.9 0 0 0 10.2 0l.42.33c-.54.32-1.12.6-1.72.83L18.4 20a16.8 16.8 0 0 0 5.08-2.53c.45-4.6-.76-8.58-2.18-12.13ZM9.55 15.06c-1 0-1.82-.92-1.82-2.05 0-1.13.8-2.05 1.82-2.05s1.84.92 1.82 2.05c0 1.13-.8 2.05-1.82 2.05Zm4.9 0c-1 0-1.82-.92-1.82-2.05 0-1.13.8-2.05 1.82-2.05s1.83.92 1.81 2.05c0 1.13-.8 2.05-1.81 2.05Z"/></svg>
+      </a>
+    </div>
+
+    <div class="footer__contract">
+      <p class="comment">// CONTRACT</p>
+      <button class="copy" type="button" data-copy="0xAUTSM000000000000000000000PROTOCOL">
+        <span class="copy__addr">0xAUTSM&hellip;PROTOCOL</span>
+        <span class="copy__icon" aria-hidden="true">[COPY]</span>
+      </button>
+      <p class="verified">AUDIT: VERIFIED <span class="check">&check;</span></p>
+    </div>
+
+  </div>
+
+  <p class="footer__legal wrap">
+    &copy; 2026 AUTSM PROTOCOL &mdash; ALL RIGHTS RESERVED &mdash; NOT FINANCIAL ADVICE
+  </p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
