@@ -230,7 +230,7 @@ a{ color:inherit; text-decoration:none; }
 .window__video{
   position:relative;
   width:100%;
-  aspect-ratio:1/1;
+  aspect-ratio:3/2;
   object-fit:cover;
   border:1px solid var(--line);
   background:#000;

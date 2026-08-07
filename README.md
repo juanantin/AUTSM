@@ -46,7 +46,9 @@ before launch:
 - Every row in `// LATEST TRANSACTIONS` — labelled *EXAMPLE DATA* on the page
 - The countdown in `script.js`, which just loops a 15-minute timer
 - The contract address in the footer (`data-copy` on the `.copy` button)
-- Social links in the footer, all currently `href="#"`
+- The X and Telegram links in the footer, both currently `href="#"`
+  (the chart button already points at `dexscreener.com` — swap in the
+  pair-specific URL once the token is live)
 - `BUY AUTSM NOW` and the header `BUY AUTSM` button, which point at `#protocol`
 
 ## Assets
