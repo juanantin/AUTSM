@@ -88,23 +88,6 @@ a{ color:inherit; text-decoration:none; }
     rgba(0,0,0,.55) 100%);
 }
 
-/* ---------- status bar ---------- */
-.statusbar{
-  border-bottom:1px solid var(--line);
-  font-size:11px;
-  letter-spacing:.14em;
-  color:var(--green-mid);
-}
-.statusbar__inner{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  height:30px;
-}
-.statusbar__right{ display:flex; align-items:center; gap:10px; }
-.statusbar__box{ border:1px solid var(--line); padding:0 5px; }
-
 /* ---------- header ---------- */
 .header{ border-bottom:1px solid var(--line); }
 .header__inner{
@@ -191,6 +174,7 @@ a{ color:inherit; text-decoration:none; }
 
 /* ---------- terminal window ---------- */
 .window{
+  width:100%;
   max-width:400px;
   margin-left:auto;
   border:1px solid var(--line);
@@ -474,6 +458,30 @@ a{ color:inherit; text-decoration:none; }
   text-shadow:none;
 }
 
+/* On the two-column hero the window stretches to the height of the copy
+   beside it, so its bottom edge lines up with the BUY button. The screen
+   takes whatever is left over after the title bar and readout, and the
+   video covers it. */
+@media (min-width:941px){
+  .hero{ align-items:stretch; }
+  .hero__right{ position:relative; }
+  /* Taken out of flow so the row height comes from the copy column alone —
+     otherwise the window's own height would drive the row and stretch
+     would have nothing to resolve against. */
+  .window{
+    position:absolute;
+    top:0; right:0; bottom:0;
+    display:flex;
+    flex-direction:column;
+    /* The height is fixed by the copy column, so width sets the crop the
+       video takes. Track the viewport so the frame stays near 3:2 and
+       never squeezes tall enough to clip the logo's circle or underline. */
+    max-width:clamp(268px, 27vw, 320px);
+  }
+  .window__screen{ flex:1 1 auto; min-height:0; }
+  .window__video{ height:100%; aspect-ratio:auto; }
+}
+
 /* ---------- animation ---------- */
 @keyframes blink{ 0%,100%{opacity:1} 50%{opacity:0} }
 @keyframes pulse{ 0%,100%{opacity:1} 50%{opacity:.25} }
@@ -493,7 +501,6 @@ a{ color:inherit; text-decoration:none; }
 @media (max-width:560px){
   .cards{ grid-template-columns:1fr; }
   .card{ min-height:0; }
-  .statusbar__conn{ display:none; }
   .btn--lg{ width:100%; justify-content:center; }
 }
 

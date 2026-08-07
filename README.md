@@ -1,4 +1,4 @@
-# AUTSM // Automated TSM Accumulation Protocol
+# AUTSM // Automated TSM Protocol
 
 Single-page site for **$AUTSM**, styled as a 1987 CRT computer terminal —
 black ground, phosphor-green monochrome UI, scanlines, thin green rules,
