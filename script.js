@@ -21,28 +21,6 @@
     }, 3600);
   }
 
-  /* ---- next-distribution countdown --------------------------- */
-  var cd = document.getElementById("countdown");
-
-  function pad(n) {
-    return String(n).padStart(2, "0");
-  }
-
-  if (cd) {
-    var remaining = 14 * 60 + 37; // seconds
-    var render = function () {
-      var h = Math.floor(remaining / 3600);
-      var m = Math.floor((remaining % 3600) / 60);
-      var s = remaining % 60;
-      cd.textContent = pad(h) + ":" + pad(m) + ":" + pad(s);
-    };
-    render();
-    setInterval(function () {
-      remaining = remaining > 0 ? remaining - 1 : 15 * 60;
-      render();
-    }, 1000);
-  }
-
   /* ---- copy contract address --------------------------------- */
   var copyBtn = document.querySelector(".copy");
 
