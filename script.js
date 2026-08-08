@@ -21,6 +21,46 @@
     }, 3600);
   }
 
+  /* ---- live holder count (Robinhood Chain explorer, public API) --
+       Runs in the visitor's browser at page load, not in any build
+       or CI step, so it is unaffected by server-side network rules.
+       Reads Blockscout's v2 token endpoint. If the request fails,
+       is CORS-blocked, or the response shape doesn't match, the
+       static fallback already in index.html is left untouched —
+       this is a progressive enhancement, not a requirement to
+       render the page. Unverified against the live endpoint; watch
+       the browser console after deploying to confirm the field name
+       Blockscout actually returns. ------------------------------- */
+  var holdersEl = document.querySelector('[data-stat="holders"]');
+  var TOKEN_ADDRESS = "0x7f252feed0bcb6db7c40faf320a02ebd2cd3aee8";
+
+  if (holdersEl && window.fetch) {
+    var controller = window.AbortController ? new AbortController() : null;
+    var timer = controller && setTimeout(function () { controller.abort(); }, 8000);
+
+    fetch("https://robinhoodchain.blockscout.com/api/v2/tokens/" + TOKEN_ADDRESS, {
+      signal: controller && controller.signal,
+    })
+      .then(function (res) {
+        if (!res.ok) throw new Error("explorer responded " + res.status);
+        return res.json();
+      })
+      .then(function (data) {
+        var count = data && (data.holders_count ?? data.holders ?? data.holder_count);
+        var n = Number(count);
+        if (Number.isFinite(n)) {
+          holdersEl.textContent = n.toLocaleString();
+        }
+      })
+      .catch(function () {
+        /* left as-is: explorer unreachable, CORS blocked, or the
+           API shape differs from what's assumed above */
+      })
+      .finally(function () {
+        if (timer) clearTimeout(timer);
+      });
+  }
+
   /* ---- copy contract address --------------------------------- */
   var copyBtn = document.querySelector(".copy");
 
