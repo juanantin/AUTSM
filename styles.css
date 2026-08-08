@@ -176,6 +176,24 @@ a{ color:inherit; text-decoration:none; }
   text-shadow:none;
 }
 
+.hero__proof{
+  margin-top:22px;
+  padding:14px 16px;
+  border:1px solid var(--line);
+}
+
+.hero__proof-value{
+  margin:6px 0 0;
+  font-size:17px;
+  font-weight:700;
+}
+
+.hero__proof-usd{
+  font-weight:400;
+  color:var(--green-mid);
+  text-shadow:none;
+}
+
 .hero__copy{
   margin:0;
   font-size:15px;
@@ -359,6 +377,11 @@ a{ color:inherit; text-decoration:none; }
   margin:0 0 0 auto;
   font-weight:700;
   white-space:nowrap;
+}
+.stat__sub{
+  font-weight:400;
+  color:var(--green-mid);
+  text-shadow:none;
 }
 
 .tx{

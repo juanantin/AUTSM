@@ -19,13 +19,15 @@ python3 -m http.server 8000
 # → http://localhost:8000
 ```
 
-That's enough for everything except five dashboard fields. `api/treasury.js`
-and `api/dexscreener.js` are Vercel serverless functions, and a plain file
-server has no way to run them — `/api/treasury` and `/api/dexscreener` just
-404, so `MARKET CAP`, `24H VOLUME`, `TOTAL FEES COLLECTED`, `TOTAL TSM
-DISTRIBUTED`, and `// LATEST TRANSACTIONS` fall back to their static values
-locally (same as any other fetch failure — nothing breaks, they're just
-not live). To exercise the real proxies locally, use the Vercel CLI instead:
+That's enough for everything except the live-wired dashboard fields.
+`api/treasury.js` and `api/dexscreener.js` are Vercel serverless functions,
+and a plain file server has no way to run them — `/api/treasury` and
+`/api/dexscreener` just 404, so `MARKET CAP`, `24H VOLUME`, `TOTAL FEES
+COLLECTED`, `TOTAL TSM DISTRIBUTED` (stats panel and hero, including both
+`$(...)` values), and `// LATEST TRANSACTIONS` fall back to their static
+values locally (same as any other fetch failure — nothing breaks, they're
+just not live). To exercise the real proxies locally, use the Vercel CLI
+instead:
 
 ```bash
 vercel dev
@@ -39,13 +41,15 @@ vercel dev
 | `styles.css` | Terminal theme, CRT overlays, responsive grid |
 | `script.js` | Rotating status line, copy-address, live dashboard data |
 | `api/treasury.js` | Vercel serverless function — proxies theindex.finance's indexer server-side to route around its CORS restriction |
-| `api/dexscreener.js` | Vercel serverless function — proxies DEX Screener's pairs API for market cap / 24h volume |
+| `api/dexscreener.js` | Vercel serverless function — proxies DEX Screener for AUTSM's market cap / 24h volume and TSM's USD price |
 | `assets/` | Logo, favicons, and the looping hero video |
 
 ## Sections
 
 - **Hero** — pixel headline, the fee mechanic, `BUY AUTSM NOW >_` (links
-  straight to the Uniswap swap for $AUTSM on Robinhood Chain)
+  straight to the Uniswap swap for $AUTSM on Robinhood Chain), and a
+  `// TOTAL DISTRIBUTED TO HOLDERS` proof box — the same live TSM
+  distributed + `$` figures as the stats panel, surfaced near the CTA
 - **Terminal window** — looping AUTSM graphic plus `// PROTOCOL STATUS`
 - **Mechanism** — four cards: `01` buy → `02` fees → `03` buy TSM → `04` holders
 - **Dashboard** — `// PROTOCOL STATS` and `// LATEST TRANSACTIONS`, live —
@@ -81,6 +85,12 @@ after deploying to confirm.
   wouldn't hit the same wall as the indexer. Proxied through
   `api/dexscreener.js` regardless, both to remove that uncertainty and
   because it comes with edge caching for free (`s-maxage=30`).
+
+  The same proxy also looks up TSM's own USD price, needed for the `$(...)`
+  figures below. TSM doesn't have one known pair address the way AUTSM
+  does, so it's found via a token lookup, which can return same-symbol
+  pairs on unrelated chains — filtered to `chainId: "robinhood"`, then
+  the most liquid of what's left (by `liquidity.usd`).
 - `TOTAL FEES COLLECTED` and `TOTAL TSM DISTRIBUTED` — theindex.finance's
   public indexer (a Ponder-style GraphQL endpoint, no auth required),
   queried for AUTSM's **treasury** contract —
@@ -108,6 +118,15 @@ after deploying to confirm.
   `script.js` fetches `/api/treasury` on our own domain instead. Response
   is edge-cached for 60s (`s-maxage`) so concurrent visitors don't each
   trigger a fresh upstream call.
+- The `$(...)` next to `TOTAL TSM DISTRIBUTED` — both on the stats panel
+  and the hero's `// TOTAL DISTRIBUTED TO HOLDERS` box, which shows the
+  same number — is `distributed amount × TSM's USD price`. These come
+  from two independent fetches (the treasury proxy above, the DEX
+  Screener proxy's TSM lookup) that resolve on their own schedule;
+  `script.js` tracks both in shared variables and renders once whichever
+  finishes second confirms both are available (`renderDistributedUsd()`).
+  A failure in either source just leaves every `$(...)` at its static
+  fallback — it doesn't block the plain TSM amount from updating.
 - `// LATEST TRANSACTIONS` — the same indexer's `harvests` list (each fee
   harvest event, with a real `txHash`), replacing the `NO TRANSACTIONS
   YET` empty state with up to 5 rows.

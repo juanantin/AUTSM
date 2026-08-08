@@ -85,6 +85,21 @@
     return hash.slice(0, 6) + "…" + hash.slice(-4);
   }
 
+  function formatUsd(n) {
+    if (!Number.isFinite(n)) return null;
+    return "$" + Math.round(n).toLocaleString("en-US");
+  }
+
+  /* Re-parses a formatUnits() string back into a plain float. Only
+     used for the TSM-distributed × price multiplication below, where
+     display-grade float precision is fine — the raw wei value was
+     already handled exactly by formatUnits before this ever runs. */
+  function toFloat(formatted) {
+    if (formatted == null) return null;
+    var n = Number(formatted.replace(/,/g, ""));
+    return Number.isFinite(n) ? n : null;
+  }
+
   /* ---- holder count (Robinhood Chain explorer, public API) ----
        Checks three plausible field names since the exact response
        shape is unverified from this environment. -------------- */
@@ -100,35 +115,67 @@
       .catch(function () { /* left as-is */ });
   }
 
-  /* ---- market cap + 24h volume (DEX Screener) -------------------
+  /* ---- $ value of TOTAL TSM DISTRIBUTED, on the stats panel and --
+     the hero -------------------------------------------------------
+       Needs two independent numbers that resolve on their own
+       schedule: the distributed TSM amount (treasury block, below)
+       and TSM's USD price (DEX Screener block, further below).
+       Whichever resolves second calls render() and actually paints
+       both. Left null-checked so a failure in either source just
+       leaves every $(...) figure at its static fallback. ---------- */
+  var tsmDistributedAmount = null;
+  var tsmPriceUsd = null;
+  var distributedUsdEls = [
+    document.querySelector('[data-stat="tsm-distributed-usd"]'),
+    document.querySelector('[data-stat="hero-tsm-distributed-usd"]'),
+  ].filter(Boolean);
+
+  function renderDistributedUsd() {
+    if (tsmDistributedAmount == null || tsmPriceUsd == null) return;
+    var usd = formatUsd(tsmDistributedAmount * tsmPriceUsd);
+    if (usd == null) return;
+    distributedUsdEls.forEach(function (el) { el.textContent = "(" + usd + ")"; });
+  }
+
+  /* ---- market cap + 24h volume + TSM price (DEX Screener) -------
        Fetched via /api/dexscreener (server-side proxy, same reasoning
-       as the treasury proxy above) rather than api.dexscreener.com
+       as the treasury proxy below) rather than api.dexscreener.com
        directly. MARKET CAP falls back to `fdv` (fully diluted
        valuation) if a true circulating-supply market cap isn't
-       available — DEX Screener does this too for young tokens. Checks
-       both the `pairs[0]` and `pair` response shapes since neither is
-       verified against the live endpoint from this environment. ---- */
+       available — DEX Screener does this too for young tokens.
+
+       TSM's price comes from a token lookup (its specific pair
+       address isn't known the way AUTSM's is), which can return
+       pairs on other chains for a same-symbol, unrelated token —
+       filtered to chainId "robinhood", then the most liquid of what's
+       left. None of these field names or shapes are verified against
+       the live endpoint from this environment. -------------------- */
   var mcapEl = document.querySelector('[data-stat="mcap"]');
   var volumeEl = document.querySelector('[data-stat="volume"]');
 
-  function formatUsd(n) {
-    if (!Number.isFinite(n)) return null;
-    return "$" + Math.round(n).toLocaleString("en-US");
-  }
-
-  if (mcapEl || volumeEl) {
+  if (mcapEl || volumeEl || distributedUsdEls.length) {
     fetchJSON("/api/dexscreener")
       .then(function (data) {
-        var pair = (data && data.pairs && data.pairs[0]) || (data && data.pair) || null;
-        if (!pair) return;
-
-        if (mcapEl) {
-          var mcap = formatUsd(Number(pair.marketCap != null ? pair.marketCap : pair.fdv));
-          if (mcap != null) mcapEl.textContent = mcap;
+        var autsmPair = (data && data.autsm && data.autsm.pairs && data.autsm.pairs[0]) || null;
+        if (autsmPair) {
+          if (mcapEl) {
+            var mcap = formatUsd(Number(autsmPair.marketCap != null ? autsmPair.marketCap : autsmPair.fdv));
+            if (mcap != null) mcapEl.textContent = mcap;
+          }
+          if (volumeEl) {
+            var vol = formatUsd(Number(autsmPair.volume && autsmPair.volume.h24));
+            if (vol != null) volumeEl.textContent = vol;
+          }
         }
-        if (volumeEl) {
-          var vol = formatUsd(Number(pair.volume && pair.volume.h24));
-          if (vol != null) volumeEl.textContent = vol;
+
+        var tsmPairs = (data && data.tsm && data.tsm.pairs) || [];
+        var tsmPair = tsmPairs
+          .filter(function (p) { return p && typeof p.chainId === "string" && p.chainId.toLowerCase() === "robinhood"; })
+          .sort(function (a, b) { return ((b.liquidity && b.liquidity.usd) || 0) - ((a.liquidity && a.liquidity.usd) || 0); })[0];
+        var price = tsmPair && Number(tsmPair.priceUsd);
+        if (Number.isFinite(price)) {
+          tsmPriceUsd = price;
+          renderDistributedUsd();
         }
       })
       .catch(function () { /* left as-is: proxy unreachable or shape differs */ });
@@ -159,10 +206,11 @@
        to be told apart again. --------------------------------- */
   var feesEl = document.querySelector('[data-stat="fees"]');
   var distributedEl = document.querySelector('[data-stat="tsm-distributed"]');
+  var heroDistributedEl = document.querySelector('[data-stat="hero-tsm-distributed"]');
   var txList = document.getElementById("tx-list");
   var txNote = document.getElementById("tx-note");
 
-  if (feesEl || distributedEl || txList) {
+  if (feesEl || distributedEl || heroDistributedEl || txList) {
     var tsmDecimals = fetchJSON("https://robinhoodchain.blockscout.com/api/v2/tokens/" + TSM_ADDRESS)
       .then(function (data) {
         var d = Number(data && data.decimals);
@@ -183,13 +231,18 @@
           if (fees != null) feesEl.textContent = fees + " ETH";
         }
 
-        if (distributedEl && assets && assets.length) {
+        if ((distributedEl || heroDistributedEl) && assets && assets.length) {
           var pooled = assets.find(function (a) {
             return typeof a.asset === "string" && a.asset.toLowerCase() === TSM_ADDRESS.toLowerCase();
           });
           if (pooled) {
             var distributed = formatUnits(pooled.totalPot, decimals, 3);
-            if (distributed != null) distributedEl.textContent = distributed + " TSM";
+            if (distributed != null) {
+              if (distributedEl) distributedEl.textContent = distributed + " TSM";
+              if (heroDistributedEl) heroDistributedEl.textContent = distributed + " TSM";
+              tsmDistributedAmount = toFloat(distributed);
+              renderDistributedUsd();
+            }
           }
         }
 
