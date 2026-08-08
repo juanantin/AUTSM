@@ -53,16 +53,15 @@ these to a real source before launch:
   class="tx__empty">` with real rows once transactions exist — each row is
   `<li><span class="tx__hash">…</span><span class="tx__kind">…</span><span
   class="tx__amt">…</span></li>`
-- The chart button, which points at `dexscreener.com` — swap in the
-  pair-specific URL once the token is live
 - The Telegram button, commented out in `index.html` next to the X link.
   Uncomment it and set `href` to the invite link to bring it back; the X
   link is live and the chart icon needs no layout change either way
 
-The contract address (footer `.copy` button) and both `BUY AUTSM` buttons
-are already wired to the real token — `0x7f252feed0bcb6db7c40faf320a02ebd2cd3aee8`
-on Robinhood Chain, swap link via Uniswap. Update all three together if the
-token address ever changes.
+The contract address (footer `.copy` button), both `BUY AUTSM` buttons,
+and the chart button are already wired to the real token —
+`0x7f252feed0bcb6db7c40faf320a02ebd2cd3aee8` on Robinhood Chain, swap link
+via Uniswap, chart via the DEX Screener pair page. Update all four
+together if the token address or pair ever changes.
 
 ## Assets
 
