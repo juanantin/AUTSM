@@ -22,7 +22,7 @@ python3 -m http.server 8000
 That's enough for everything except three dashboard fields. `api/treasury.js`
 is a Vercel serverless function, and a plain file server has no way to run
 it — `/api/treasury` just 404s, so `TOTAL FEES COLLECTED`, `TOTAL TSM
-ACQUIRED`, and `// LATEST TRANSACTIONS` fall back to their static values
+DISTRIBUTED`, and `// LATEST TRANSACTIONS` fall back to their static values
 locally (same as any other fetch failure — nothing breaks, they're just
 not live). To exercise the real proxy locally, use the Vercel CLI instead:
 
@@ -66,17 +66,23 @@ after deploying to confirm.
   `robinhoodchain.blockscout.com/api/v2/tokens/<AUTSM address>`. Checks
   three plausible field names (`holders_count` / `holders` /
   `holder_count`) since the exact response shape is unverified.
-- `TOTAL FEES COLLECTED` and `TOTAL TSM ACQUIRED` — theindex.finance's
+- `TOTAL FEES COLLECTED` and `TOTAL TSM DISTRIBUTED` — theindex.finance's
   public indexer (a Ponder-style GraphQL endpoint, no auth required),
   queried for AUTSM's **treasury** contract —
   `0x374f567ea050fde8ec9a5202e4fe30d62f2be4ee`, distinct from the AUTSM
   **token** contract. The treasury collects fees and buys TSM; the token
   is what trades. `TOTAL FEES COLLECTED` reads the treasury's `harvested`
-  field (ETH); `TOTAL TSM ACQUIRED` reads `treasuryAssets`' `totalPot` for
-  the TSM address found in the treasury's `basket` field. Both were
-  reconciled against a captured response before wiring: summing the
-  individual `harvests` and `rounds` entries lands on `harvested` and
-  `totalPot` exactly, to the last wei.
+  field (ETH); `TOTAL TSM DISTRIBUTED` reads `treasuryAssets`' `totalPot`
+  for the TSM address found in the treasury's `basket` field — reconciled
+  against a captured response before wiring: summing the individual
+  `harvests` and `rounds` entries lands on `harvested` and `totalPot`
+  exactly, to the last wei.
+
+  Worth knowing if this ever needs revisiting: `totalPot` is TSM the
+  treasury has *pooled* from fees, not a confirmed count of TSM that has
+  reached individual holder wallets — there was originally a separate
+  `TOTAL TSM ACQUIRED` row for that reason. Showing this figure under
+  DISTRIBUTED instead is a deliberate relabel, not a new data source.
 
   This one doesn't call theindex.finance directly from the browser — its
   indexer endpoint rejects cross-origin `POST` requests at the CORS
@@ -91,7 +97,7 @@ after deploying to confirm.
   harvest event, with a real `txHash`), replacing the `NO TRANSACTIONS
   YET` empty state with up to 5 rows.
 - TSM's decimal count is fetched from Blockscout rather than assumed —
-  guessing wrong here would silently scale `TOTAL TSM ACQUIRED` off by
+  guessing wrong here would silently scale `TOTAL TSM DISTRIBUTED` off by
   orders of magnitude with no visible error, worse than showing `0`.
 - Raw on-chain amounts are formatted with a small BigInt-based helper
   (`formatUnits` in `script.js`), not `Number()` — several of these
@@ -100,13 +106,13 @@ after deploying to confirm.
 
 **Deliberately still static:**
 
-- `TOTAL TSM DISTRIBUTED` and `NEXT DISTRIBUTION` (reads `PENDING`).
-  Nothing in the indexer response tracks TSM actually leaving the
-  treasury toward holders — only what's been collected and pooled — so
-  there's no field to back a distributed figure or a countdown target.
-  Showing `0` / `PENDING` here is the accurate read of what's confirmed,
-  not an oversight. Revisit once the indexer (or the contract) exposes a
-  real distribution event.
+- `NEXT DISTRIBUTION` reads `PENDING` and blinks (`.blink` on `#countdown`
+  in `index.html`, the same animation as the hero's cursor) rather than
+  showing a static value — there's no field in the indexer response to
+  back a countdown target with, so blinking signals "watching, nothing
+  yet" instead of implying a number that isn't there. Wire up a real
+  countdown once the indexer (or the contract) exposes a distribution
+  timestamp.
 - The `VIEW DISTRIBUTION` link below the stats is real, independent of
   the above — it points at the AUTSM coin page on theindex.finance.
 - The Telegram button, commented out in `index.html` next to the X link.

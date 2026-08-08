@@ -100,7 +100,7 @@
       .catch(function () { /* left as-is */ });
   }
 
-  /* ---- fees collected + TSM acquired + latest transactions -----
+  /* ---- fees collected + TSM distributed + latest transactions --
        Source: theindex.finance's public indexer for AUTSM's
        treasury contract (distinct from the AUTSM token contract —
        the treasury holds and routes fees; the token is what
@@ -116,17 +116,19 @@
        stage, so a server-to-server call is the only way to reach it
        from a browser on this domain.
 
-       TOTAL TSM DISTRIBUTED is deliberately left untouched: nothing
-       in this response tracks TSM actually leaving the treasury
-       toward holders, only what's been collected and pooled. That
-       lines up with NEXT DISTRIBUTION reading PENDING elsewhere on
-       the page. Wire it up once a field for it exists. ---------- */
+       TOTAL TSM DISTRIBUTED reads treasuryAssets.totalPot — TSM the
+       treasury has pooled from fees, not a confirmed count of TSM
+       that has reached individual holder wallets (nothing in this
+       response tracks that separately). Displaying it under
+       DISTRIBUTED rather than ACQUIRED is a deliberate call, not a
+       data source change — see commit history if the two ever need
+       to be told apart again. --------------------------------- */
   var feesEl = document.querySelector('[data-stat="fees"]');
-  var acquiredEl = document.querySelector('[data-stat="tsm-acquired"]');
+  var distributedEl = document.querySelector('[data-stat="tsm-distributed"]');
   var txList = document.getElementById("tx-list");
   var txNote = document.getElementById("tx-note");
 
-  if (feesEl || acquiredEl || txList) {
+  if (feesEl || distributedEl || txList) {
     var tsmDecimals = fetchJSON("https://robinhoodchain.blockscout.com/api/v2/tokens/" + TSM_ADDRESS)
       .then(function (data) {
         var d = Number(data && data.decimals);
@@ -147,13 +149,13 @@
           if (fees != null) feesEl.textContent = fees + " ETH";
         }
 
-        if (acquiredEl && assets && assets.length) {
+        if (distributedEl && assets && assets.length) {
           var pooled = assets.find(function (a) {
             return typeof a.asset === "string" && a.asset.toLowerCase() === TSM_ADDRESS.toLowerCase();
           });
           if (pooled) {
-            var acquired = formatUnits(pooled.totalPot, decimals, 3);
-            if (acquired != null) acquiredEl.textContent = acquired + " TSM";
+            var distributed = formatUnits(pooled.totalPot, decimals, 3);
+            if (distributed != null) distributedEl.textContent = distributed + " TSM";
           }
         }
 
