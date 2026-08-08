@@ -46,9 +46,11 @@ before launch:
 - Every row in `// LATEST TRANSACTIONS` — labelled *EXAMPLE DATA* on the page
 - The countdown in `script.js`, which just loops a 15-minute timer
 - The contract address in the footer (`data-copy` on the `.copy` button)
-- The X and Telegram links in the footer, both currently `href="#"`
-  (the chart button already points at `dexscreener.com` — swap in the
-  pair-specific URL once the token is live)
+- The chart button, which points at `dexscreener.com` — swap in the
+  pair-specific URL once the token is live
+- The Telegram button, commented out in `index.html` next to the X link.
+  Uncomment it and set `href` to the invite link to bring it back; the X
+  link is live and the chart icon needs no layout change either way
 - `BUY AUTSM NOW` and the header `BUY AUTSM` button, which point at `#protocol`
 
 ## Assets
