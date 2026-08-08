@@ -33,7 +33,7 @@
 
   var AUTSM_ADDRESS = "0x7f252feed0bcb6db7c40faf320a02ebd2cd3aee8";
   var TSM_ADDRESS = "0x58FfE4a942d3885bAa22D7520691F611EF09e7AA";
-  var TREASURY_ID = "0x374f567ea050fde8ec9a5202e4fe30d62f2be4ee";
+  /* treasury ID lives in api/treasury.js, where the query now runs */
 
   function fetchJSON(url, opts, timeoutMs) {
     if (!window.fetch) return Promise.reject(new Error("fetch unsupported"));
@@ -110,6 +110,12 @@
        totalPot matches the exact sum of round pots, to the last
        wei — see commit history for the reconciliation.
 
+       Fetched via /api/treasury (this site's own serverless proxy,
+       api/treasury.js) rather than theindex.finance directly — that
+       endpoint rejects cross-origin POSTs at the CORS-preflight
+       stage, so a server-to-server call is the only way to reach it
+       from a browser on this domain.
+
        TOTAL TSM DISTRIBUTED is deliberately left untouched: nothing
        in this response tracks TSM actually leaving the treasury
        toward holders, only what's been collected and pooled. That
@@ -128,20 +134,7 @@
       })
       .catch(function () { return 18; }); /* ERC-20 default if the lookup fails */
 
-    var treasuryQuery = {
-      query:
-        "{\n    treasurys(where: { id: \"" + TREASURY_ID + "\" }, limit: 1) { items { id creator numeraire boundToken boundSymbol boundName curve boundAt basket\n  epochLength distributeBps harvested creatorAccrued protocolFees rounds } }\n    byToken: treasurys(where: { boundToken: \"" + TREASURY_ID + "\" }, limit: 1) { items { id creator numeraire boundToken boundSymbol boundName curve boundAt basket\n  epochLength distributeBps harvested creatorAccrued protocolFees rounds } }\n    \n  rounds(where: { treasury: \"" + TREASURY_ID + "\" }, orderBy: \"openedAt\", orderDirection: \"desc\", limit: 25) {\n    items { roundId asset pot spent openedAt status }\n  }\n  harvests(where: { treasury: \"" + TREASURY_ID + "\" }, orderBy: \"timestamp\", orderDirection: \"desc\", limit: 25) {\n    items { netCredit toDistributable toCreator protocolFee timestamp txHash }\n  }\n  treasuryAssets(where: { treasury: \"" + TREASURY_ID + "\" }, limit: 100) { items { asset totalPot } }\n  }",
-    };
-
-    Promise.all([
-      fetchJSON("https://indices.theindex.finance/api/indexer", {
-        method: "POST",
-        credentials: "omit",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(treasuryQuery),
-      }),
-      tsmDecimals,
-    ])
+    Promise.all([fetchJSON("/api/treasury"), tsmDecimals])
       .then(function (results) {
         var res = results[0];
         var decimals = results[1];

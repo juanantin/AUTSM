@@ -11,12 +11,23 @@ You buy AUTSM.
 
 ## Running it
 
-It's a static page with zero dependencies and zero external requests —
-open `index.html` directly, or serve the folder:
+The page itself is static, zero dependencies — open `index.html` directly,
+or serve the folder:
 
 ```bash
 python3 -m http.server 8000
 # → http://localhost:8000
+```
+
+That's enough for everything except three dashboard fields. `api/treasury.js`
+is a Vercel serverless function, and a plain file server has no way to run
+it — `/api/treasury` just 404s, so `TOTAL FEES COLLECTED`, `TOTAL TSM
+ACQUIRED`, and `// LATEST TRANSACTIONS` fall back to their static values
+locally (same as any other fetch failure — nothing breaks, they're just
+not live). To exercise the real proxy locally, use the Vercel CLI instead:
+
+```bash
+vercel dev
 ```
 
 ## Layout
@@ -26,6 +37,7 @@ python3 -m http.server 8000
 | `index.html` | Whole page — header, hero, mechanism cards, dashboard, footer |
 | `styles.css` | Terminal theme, CRT overlays, responsive grid |
 | `script.js` | Rotating status line, copy-address, live dashboard data |
+| `api/treasury.js` | Vercel serverless function — proxies theindex.finance's indexer server-side to route around its CORS restriction |
 | `assets/` | Logo, favicons, and the looping hero video |
 
 ## Sections
@@ -55,16 +67,26 @@ after deploying to confirm.
   three plausible field names (`holders_count` / `holders` /
   `holder_count`) since the exact response shape is unverified.
 - `TOTAL FEES COLLECTED` and `TOTAL TSM ACQUIRED` — theindex.finance's
-  public indexer (`indices.theindex.finance/api/indexer`, a Ponder-style
-  GraphQL endpoint, no auth required), queried for AUTSM's **treasury**
-  contract — `0x374f567ea050fde8ec9a5202e4fe30d62f2be4ee`, distinct from
-  the AUTSM **token** contract. The treasury collects fees and buys TSM;
-  the token is what trades. `TOTAL FEES COLLECTED` reads the treasury's
-  `harvested` field (ETH); `TOTAL TSM ACQUIRED` reads `treasuryAssets`'
-  `totalPot` for the TSM address found in the treasury's `basket` field.
-  Both were reconciled against a captured response before wiring: summing
-  the individual `harvests` and `rounds` entries lands on `harvested` and
+  public indexer (a Ponder-style GraphQL endpoint, no auth required),
+  queried for AUTSM's **treasury** contract —
+  `0x374f567ea050fde8ec9a5202e4fe30d62f2be4ee`, distinct from the AUTSM
+  **token** contract. The treasury collects fees and buys TSM; the token
+  is what trades. `TOTAL FEES COLLECTED` reads the treasury's `harvested`
+  field (ETH); `TOTAL TSM ACQUIRED` reads `treasuryAssets`' `totalPot` for
+  the TSM address found in the treasury's `basket` field. Both were
+  reconciled against a captured response before wiring: summing the
+  individual `harvests` and `rounds` entries lands on `harvested` and
   `totalPot` exactly, to the last wei.
+
+  This one doesn't call theindex.finance directly from the browser — its
+  indexer endpoint rejects cross-origin `POST` requests at the CORS
+  preflight stage (a plain `GET`, like the Blockscout calls above, never
+  triggers that check, which is why holders worked immediately and this
+  didn't). `api/treasury.js` is a small Vercel serverless function that
+  runs the same query server-to-server, where CORS doesn't apply, and
+  `script.js` fetches `/api/treasury` on our own domain instead. Response
+  is edge-cached for 60s (`s-maxage`) so concurrent visitors don't each
+  trigger a fresh upstream call.
 - `// LATEST TRANSACTIONS` — the same indexer's `harvests` list (each fee
   harvest event, with a real `txHash`), replacing the `NO TRANSACTIONS
   YET` empty state with up to 5 rows.
