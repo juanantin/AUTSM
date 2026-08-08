@@ -100,6 +100,40 @@
       .catch(function () { /* left as-is */ });
   }
 
+  /* ---- market cap + 24h volume (DEX Screener) -------------------
+       Fetched via /api/dexscreener (server-side proxy, same reasoning
+       as the treasury proxy above) rather than api.dexscreener.com
+       directly. MARKET CAP falls back to `fdv` (fully diluted
+       valuation) if a true circulating-supply market cap isn't
+       available — DEX Screener does this too for young tokens. Checks
+       both the `pairs[0]` and `pair` response shapes since neither is
+       verified against the live endpoint from this environment. ---- */
+  var mcapEl = document.querySelector('[data-stat="mcap"]');
+  var volumeEl = document.querySelector('[data-stat="volume"]');
+
+  function formatUsd(n) {
+    if (!Number.isFinite(n)) return null;
+    return "$" + Math.round(n).toLocaleString("en-US");
+  }
+
+  if (mcapEl || volumeEl) {
+    fetchJSON("/api/dexscreener")
+      .then(function (data) {
+        var pair = (data && data.pairs && data.pairs[0]) || (data && data.pair) || null;
+        if (!pair) return;
+
+        if (mcapEl) {
+          var mcap = formatUsd(Number(pair.marketCap != null ? pair.marketCap : pair.fdv));
+          if (mcap != null) mcapEl.textContent = mcap;
+        }
+        if (volumeEl) {
+          var vol = formatUsd(Number(pair.volume && pair.volume.h24));
+          if (vol != null) volumeEl.textContent = vol;
+        }
+      })
+      .catch(function () { /* left as-is: proxy unreachable or shape differs */ });
+  }
+
   /* ---- fees collected + TSM distributed + latest transactions --
        Source: theindex.finance's public indexer for AUTSM's
        treasury contract (distinct from the AUTSM token contract —

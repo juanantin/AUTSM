@@ -19,12 +19,13 @@ python3 -m http.server 8000
 # → http://localhost:8000
 ```
 
-That's enough for everything except three dashboard fields. `api/treasury.js`
-is a Vercel serverless function, and a plain file server has no way to run
-it — `/api/treasury` just 404s, so `TOTAL FEES COLLECTED`, `TOTAL TSM
+That's enough for everything except five dashboard fields. `api/treasury.js`
+and `api/dexscreener.js` are Vercel serverless functions, and a plain file
+server has no way to run them — `/api/treasury` and `/api/dexscreener` just
+404, so `MARKET CAP`, `24H VOLUME`, `TOTAL FEES COLLECTED`, `TOTAL TSM
 DISTRIBUTED`, and `// LATEST TRANSACTIONS` fall back to their static values
 locally (same as any other fetch failure — nothing breaks, they're just
-not live). To exercise the real proxy locally, use the Vercel CLI instead:
+not live). To exercise the real proxies locally, use the Vercel CLI instead:
 
 ```bash
 vercel dev
@@ -38,6 +39,7 @@ vercel dev
 | `styles.css` | Terminal theme, CRT overlays, responsive grid |
 | `script.js` | Rotating status line, copy-address, live dashboard data |
 | `api/treasury.js` | Vercel serverless function — proxies theindex.finance's indexer server-side to route around its CORS restriction |
+| `api/dexscreener.js` | Vercel serverless function — proxies DEX Screener's pairs API for market cap / 24h volume |
 | `assets/` | Logo, favicons, and the looping hero video |
 
 ## Sections
@@ -66,6 +68,19 @@ after deploying to confirm.
   `robinhoodchain.blockscout.com/api/v2/tokens/<AUTSM address>`. Checks
   three plausible field names (`holders_count` / `holders` /
   `holder_count`) since the exact response shape is unverified.
+- `MARKET CAP` and `24H VOLUME` — DEX Screener's public pairs API for the
+  AUTSM/Robinhood pair. `MARKET CAP` reads `marketCap`, falling back to
+  `fdv` (fully diluted valuation) if a true circulating-supply figure
+  isn't available — DEX Screener's own UI does the same for young tokens.
+  `24H VOLUME` reads `volume.h24`. Both are already USD floats from the
+  API, not raw on-chain amounts, so no decimal-scaling concern here.
+
+  DEX Screener's API is built for exactly this kind of external use and
+  a CORS block would be surprising — but this build environment couldn't
+  reach `api.dexscreener.com` either, so there was no way to confirm it
+  wouldn't hit the same wall as the indexer. Proxied through
+  `api/dexscreener.js` regardless, both to remove that uncertainty and
+  because it comes with edge caching for free (`s-maxage=30`).
 - `TOTAL FEES COLLECTED` and `TOTAL TSM DISTRIBUTED` — theindex.finance's
   public indexer (a Ponder-style GraphQL endpoint, no auth required),
   queried for AUTSM's **treasury** contract —
