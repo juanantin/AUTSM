@@ -381,6 +381,28 @@ a{ color:inherit; text-decoration:none; }
 .tx__kind{ color:var(--green-mid); text-shadow:none; font-size:11px; }
 .tx__amt{ font-weight:700; white-space:nowrap; }
 
+.panel__link{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  margin-top:16px;
+  padding:10px;
+  border:1px solid var(--line);
+  color:var(--green);
+  font-size:11px;
+  letter-spacing:.16em;
+  transition:background .12s linear, color .12s linear, border-color .12s linear;
+}
+.panel__link:hover,
+.panel__link:focus-visible{
+  border-color:var(--green);
+  background:var(--green);
+  color:#000;
+  text-shadow:none;
+  box-shadow:0 0 18px rgba(60,255,110,.35);
+}
+
 .tx__note{
   margin:14px 0 0;
   font-size:10px;

@@ -43,6 +43,8 @@ These are **example values**, not live data. Wire them to a real source
 before launch:
 
 - Every figure in `// PROTOCOL STATS` (fees, TSM acquired/distributed, holders)
+  — the `VIEW DISTRIBUTION` link below them is real, pointing at the
+  AUTSM coin page on theindex.finance
 - Every row in `// LATEST TRANSACTIONS` — labelled *EXAMPLE DATA* on the page
 - The countdown in `script.js`, which just loops a 15-minute timer
 - The contract address in the footer (`data-copy` on the `.copy` button)
