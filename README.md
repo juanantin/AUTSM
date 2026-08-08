@@ -25,7 +25,7 @@ python3 -m http.server 8000
 | --- | --- |
 | `index.html` | Whole page — header, hero, mechanism cards, dashboard, footer |
 | `styles.css` | Terminal theme, CRT overlays, responsive grid |
-| `script.js` | Rotating status line, copy-address |
+| `script.js` | Rotating status line, copy-address, live dashboard data |
 | `assets/` | Logo, favicons, and the looping hero video |
 
 ## Sections
@@ -34,52 +34,62 @@ python3 -m http.server 8000
   straight to the Uniswap swap for $AUTSM on Robinhood Chain)
 - **Terminal window** — looping AUTSM graphic plus `// PROTOCOL STATUS`
 - **Mechanism** — four cards: `01` buy → `02` fees → `03` buy TSM → `04` holders
-- **Dashboard** — `// PROTOCOL STATS` and `// LATEST TRANSACTIONS`
+- **Dashboard** — `// PROTOCOL STATS` and `// LATEST TRANSACTIONS`, live —
+  see [Dashboard data](#dashboard-data) below
 - **Footer** — logo, socials, contract address, `AUDIT: VERIFIED`
 
-## Placeholder content
+## Dashboard data
 
-`// PROTOCOL STATS` and `// LATEST TRANSACTIONS` are zeroed out — no fake
-numbers, no fabricated transaction rows — since nothing is live yet. Wire
-these to a real source before launch:
+`// PROTOCOL STATS` and `// LATEST TRANSACTIONS` are wired to live sources
+in `script.js`, fetched client-side on page load. Every call is wrapped so
+a failure — network, CORS, an unexpected response shape — leaves the
+element at its static HTML fallback rather than breaking the page. None of
+it is verified against the live endpoints from the environment this was
+built in (both are network-restricted there); check the browser console
+after deploying to confirm.
 
-- `HOLDERS` is live — `script.js` fetches it client-side from Robinhood
-  Chain's public Blockscout API
-  (`robinhoodchain.blockscout.com/api/v2/tokens/<address>`) on page load
-  and falls back to the static `0` if the request fails or the response
-  shape differs from what's assumed (`holders_count` / `holders` /
-  `holder_count`, checked in that order). This call runs in the visitor's
-  browser, so it's unaffected by any server-side network restrictions —
-  but it's also unverified against the live endpoint (this environment
-  can't reach it either), so check the browser console after deploying.
-- The other four figures in `// PROTOCOL STATS` — fees collected, TSM
-  acquired, TSM distributed, and `NEXT DISTRIBUTION` (currently
-  `PENDING`) — are protocol-specific accounting a generic explorer can't
-  answer. Wiring these up needs one of:
-  - **A subgraph/indexer** that already tracks these totals, if AUTSM
-    has one
-  - **The contract's ABI**, if it exposes view functions for them — if
-    the contract is verified on Blockscout, the ABI is on its contract
-    page there
-  - **The API behind theindex.finance's coin page** — that page already
-    computes exactly these numbers, so its network requests (DevTools →
-    Network → XHR/Fetch, on page load) likely point at the fastest path
-    to a live-wired dashboard
+**Live:**
 
-  There's no countdown-ticking logic in `script.js` for `NEXT
-  DISTRIBUTION` — that was removed when the dashboard was reset, since it
-  was counting down against fabricated data. It comes back once there's a
-  real distribution time to count down to. The `VIEW DISTRIBUTION` link
-  below the stats is already real, pointing at the AUTSM coin page on
-  theindex.finance.
-- `// LATEST TRANSACTIONS`, which shows a `NO TRANSACTIONS YET` empty
-  state (`.tx__empty` in `styles.css`). Replace the single `<li
-  class="tx__empty">` with real rows once transactions exist — each row is
-  `<li><span class="tx__hash">…</span><span class="tx__kind">…</span><span
-  class="tx__amt">…</span></li>`
+- `HOLDERS` — Robinhood Chain's public Blockscout API,
+  `robinhoodchain.blockscout.com/api/v2/tokens/<AUTSM address>`. Checks
+  three plausible field names (`holders_count` / `holders` /
+  `holder_count`) since the exact response shape is unverified.
+- `TOTAL FEES COLLECTED` and `TOTAL TSM ACQUIRED` — theindex.finance's
+  public indexer (`indices.theindex.finance/api/indexer`, a Ponder-style
+  GraphQL endpoint, no auth required), queried for AUTSM's **treasury**
+  contract — `0x374f567ea050fde8ec9a5202e4fe30d62f2be4ee`, distinct from
+  the AUTSM **token** contract. The treasury collects fees and buys TSM;
+  the token is what trades. `TOTAL FEES COLLECTED` reads the treasury's
+  `harvested` field (ETH); `TOTAL TSM ACQUIRED` reads `treasuryAssets`'
+  `totalPot` for the TSM address found in the treasury's `basket` field.
+  Both were reconciled against a captured response before wiring: summing
+  the individual `harvests` and `rounds` entries lands on `harvested` and
+  `totalPot` exactly, to the last wei.
+- `// LATEST TRANSACTIONS` — the same indexer's `harvests` list (each fee
+  harvest event, with a real `txHash`), replacing the `NO TRANSACTIONS
+  YET` empty state with up to 5 rows.
+- TSM's decimal count is fetched from Blockscout rather than assumed —
+  guessing wrong here would silently scale `TOTAL TSM ACQUIRED` off by
+  orders of magnitude with no visible error, worse than showing `0`.
+- Raw on-chain amounts are formatted with a small BigInt-based helper
+  (`formatUnits` in `script.js`), not `Number()` — several of these
+  values exceed `Number.MAX_SAFE_INTEGER` and would silently lose
+  precision otherwise.
+
+**Deliberately still static:**
+
+- `TOTAL TSM DISTRIBUTED` and `NEXT DISTRIBUTION` (reads `PENDING`).
+  Nothing in the indexer response tracks TSM actually leaving the
+  treasury toward holders — only what's been collected and pooled — so
+  there's no field to back a distributed figure or a countdown target.
+  Showing `0` / `PENDING` here is the accurate read of what's confirmed,
+  not an oversight. Revisit once the indexer (or the contract) exposes a
+  real distribution event.
+- The `VIEW DISTRIBUTION` link below the stats is real, independent of
+  the above — it points at the AUTSM coin page on theindex.finance.
 - The Telegram button, commented out in `index.html` next to the X link.
   Uncomment it and set `href` to the invite link to bring it back; the X
-  link is live and the chart icon needs no layout change either way
+  link is live and the chart icon needs no layout change either way.
 
 The contract address (footer `.copy` button), both `BUY AUTSM` buttons,
 and the chart button are already wired to the real token —

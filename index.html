@@ -146,8 +146,8 @@
       <p class="comment panel__label">// PROTOCOL STATS</p>
       <hr class="rule">
       <dl class="stats">
-        <div class="stats__row"><dt>TOTAL FEES COLLECTED</dt><dd>0.000 ETH</dd></div>
-        <div class="stats__row"><dt>TOTAL TSM ACQUIRED</dt><dd>0.000 TSM</dd></div>
+        <div class="stats__row"><dt>TOTAL FEES COLLECTED</dt><dd data-stat="fees">0.000 ETH</dd></div>
+        <div class="stats__row"><dt>TOTAL TSM ACQUIRED</dt><dd data-stat="tsm-acquired">0.000 TSM</dd></div>
         <div class="stats__row"><dt>TOTAL TSM DISTRIBUTED</dt><dd>0.000 TSM</dd></div>
         <div class="stats__row"><dt>HOLDERS</dt><dd data-stat="holders">0</dd></div>
         <div class="stats__row"><dt>NEXT DISTRIBUTION</dt><dd id="countdown">PENDING</dd></div>
@@ -160,10 +160,10 @@
     <div class="panel" id="tx">
       <p class="comment panel__label">// LATEST TRANSACTIONS</p>
       <hr class="rule">
-      <ul class="tx">
+      <ul class="tx" id="tx-list">
         <li class="tx__empty">NO TRANSACTIONS YET</li>
       </ul>
-      <p class="tx__note">LIVE FEED WILL APPEAR HERE ONCE THE PROTOCOL LAUNCHES</p>
+      <p class="tx__note" id="tx-note">LIVE FEED WILL APPEAR HERE ONCE THE PROTOCOL LAUNCHES</p>
     </div>
 
   </section>
